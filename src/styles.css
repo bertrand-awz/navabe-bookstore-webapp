@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-canvas: #eee9df;
+  --color-ink: #20211e;
+  --color-paper: #f8f5ee;
+  --color-brand: #315b45;
+  --color-brand-dark: #234333;
+  --color-line: #c8c0b2;
+  --color-danger: #923d36;
+  --font-sans: "EB Garamond", Garamond, serif;
+  --font-display: "EB Garamond", Garamond, serif;
+}

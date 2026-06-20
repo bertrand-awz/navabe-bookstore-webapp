@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Navabe N monogram</title>
+  <path
+    d="M12 54V10M12 10c16 4 25 36 40 44M52 54V10"
+    fill="none"
+    stroke="#315b45"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+    stroke-width="5"
+  />
+</svg>
