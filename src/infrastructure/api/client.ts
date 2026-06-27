@@ -21,17 +21,31 @@ export class ApiError extends Error {
   }
 }
 
+function parseJson(text: string): unknown {
+  if (!text.trim()) return undefined;
+  return JSON.parse(text);
+}
+
+function parseErrorBody(text: string): { code?: string; message?: string } {
+  try {
+    return (parseJson(text) ?? {}) as { code?: string; message?: string };
+  } catch {
+    return {};
+  }
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
     credentials: "include",
     headers: { "Content-Type": "application/json", ...init.headers },
     ...init,
   });
+  const text = await response.text();
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
+    const body = parseErrorBody(text);
     throw new ApiError(body.message ?? "The API request failed", response.status, body.code);
   }
-  return response.status === 204 ? (undefined as T) : response.json();
+  return response.status === 204 ? (undefined as T) : (parseJson(text) as T);
 }
 
 const json = (method: string, body?: unknown): RequestInit => ({
@@ -79,16 +93,17 @@ export const api = {
       request<{ identifier: string }>("/orders", json("POST", { transaction_id, amount, lines })),
   },
   admin: {
-    session: () => request<{ authenticated: boolean; identifier?: string }>("/admin/auth/session"),
+    session: () => request<{ authenticated: boolean; identifier?: string; must_change_password: boolean }>("/admin/auth/session"),
     login: (identifier: string, password: string) =>
       request<Manager>("/admin/auth/login", json("POST", { identifier, password })),
     logout: () => request<void>("/admin/auth/logout", json("POST")),
+    changePassword: (password: string) => request<void>("/admin/auth/password", json("PATCH", { password })),
     recover: (identifier: string) => request<void>("/admin/auth/recovery", json("POST", { identifier })),
     books: (query = "") => request<Book[]>(`/admin/books?q=${encodeURIComponent(query)}`),
     saveBook: (book: Partial<Book> & { quantity: number }) => request<Book>("/admin/books", json("POST", book)),
     deleteBook: (isbn: string) => request<void>(`/admin/books/${isbn}`, json("DELETE")),
     createManager: (body: { name: string; first_name: string; email: string }) =>
-      request<Manager>("/admin/administrators", json("POST", body)),
+      request<Manager | undefined>("/admin/administrators", json("POST", body)),
     order: (identifier: string) => request<OrderDetails>(`/admin/orders/${identifier}`),
     statistic: (metric: string, groupBy = "") =>
       request<Statistic>(`/admin/statistics/${metric}?group_by=${groupBy}`),

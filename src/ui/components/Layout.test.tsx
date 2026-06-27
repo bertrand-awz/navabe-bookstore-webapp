@@ -37,18 +37,31 @@ function renderLayout(path: string) {
   );
 }
 
-describe("Layout footer", () => {
-  it("shows only the centered bookstore copyright on regular pages", () => {
+describe("Layout", () => {
+  it("includes about and MailHog navigation links", () => {
     renderLayout("/");
 
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
+    expect(screen.getByRole("link", { name: "Management Portal" })).toHaveAttribute("href", "/management");
+    expect(screen.getByRole("link", { name: "Open MailHog inbox" })).toHaveAttribute(
+      "href",
+      "https://mailhog.navabe.bertawz.dev",
+    );
+  });
+
+  it("shows only the right-aligned bookstore copyright on regular pages", () => {
+    renderLayout("/");
+
+    expect(screen.getByRole("main")).toHaveClass("bg-canvas");
     const footer = screen.getByRole("contentinfo");
-    expect(footer).toHaveClass("text-center");
+    expect(footer).toHaveClass("bg-[#2f2a24]");
+    expect(footer).toHaveClass("text-right");
     expect(footer).toHaveTextContent(`© ${new Date().getFullYear()} Navabe Bookstore`);
     expect(footer).not.toHaveTextContent("React");
     expect(footer).not.toHaveTextContent("Flask");
   });
 
-  it.each(["/login", "/signup", "/recovery", "/admin"])("hides the footer on %s", (path) => {
+  it.each(["/login", "/signup", "/recovery", "/management"])("hides the footer on %s", (path) => {
     renderLayout(path);
 
     expect(screen.queryByRole("contentinfo")).not.toBeInTheDocument();

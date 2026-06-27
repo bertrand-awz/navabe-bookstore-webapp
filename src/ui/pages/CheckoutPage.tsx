@@ -4,7 +4,7 @@ import { ApiError, api } from "../../infrastructure/api/client";
 import { Message } from "../components/Message";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
-import { useState } from "react";
+import { useTransientMessage } from "../hooks/useTransientMessage";
 import {
   compactButtonClass,
   dangerButtonClass,
@@ -18,8 +18,8 @@ import {
 export function CheckoutPage() {
   const { user, loading } = useAuth();
   const cart = useCart();
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [message, setMessage] = useTransientMessage();
+  const [error, setError] = useTransientMessage();
   if (loading) return <p className={feedbackStateClass}>Loading checkout…</p>;
   if (!user) return <Navigate to="/login" replace />;
 

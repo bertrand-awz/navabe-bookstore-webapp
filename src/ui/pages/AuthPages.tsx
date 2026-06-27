@@ -1,8 +1,9 @@
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ApiError, api } from "../../infrastructure/api/client";
 import { Message } from "../components/Message";
 import { useAuth } from "../context/AuthContext";
+import { useTransientMessage } from "../hooks/useTransientMessage";
 import { buttonClass, inputClass, labelClass, pageTitleClass, panelClass } from "../styles";
 
 function AuthShell({ title, children }: { title: string; children: React.ReactNode }) {
@@ -20,7 +21,7 @@ function AuthShell({ title, children }: { title: string; children: React.ReactNo
 export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [error, setError] = useTransientMessage();
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -53,7 +54,7 @@ export function LoginPage() {
 export function SignupPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [error, setError] = useTransientMessage();
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -84,8 +85,8 @@ export function SignupPage() {
 }
 
 export function RecoveryPage() {
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [message, setMessage] = useTransientMessage();
+  const [error, setError] = useTransientMessage();
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

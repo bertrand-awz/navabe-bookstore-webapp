@@ -1,8 +1,9 @@
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { ApiError, api } from "../../infrastructure/api/client";
 import { Message } from "../components/Message";
 import { useAuth } from "../context/AuthContext";
+import { useTransientMessage } from "../hooks/useTransientMessage";
 import {
   buttonClass,
   eyebrowClass,
@@ -18,7 +19,7 @@ import {
 export function ProfilePage() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [error, setError] = useTransientMessage();
   if (loading) return <p className={feedbackStateClass}>Loading profile…</p>;
   if (!user) return <Navigate to="/login" replace />;
 

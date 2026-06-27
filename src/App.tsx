@@ -4,6 +4,7 @@ import { AuthProvider } from "./ui/context/AuthContext";
 import { CatalogSearchProvider } from "./ui/context/CatalogSearchContext";
 import { CartProvider } from "./ui/context/CartContext";
 import { ThemeProvider } from "./ui/context/ThemeContext";
+import { AboutPage } from "./ui/pages/AboutPage";
 import { AdminPage } from "./ui/pages/AdminPage";
 import { LoginPage, RecoveryPage, SignupPage } from "./ui/pages/AuthPages";
 import { CatalogPage } from "./ui/pages/CatalogPage";
@@ -25,7 +26,8 @@ export default function App() {
                   <Route path="recovery" element={<RecoveryPage />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="checkout" element={<CheckoutPage />} />
-                  <Route path="admin" element={<AdminPage />} />
+                  <Route path="about" element={<AboutPage />} />
+                  <Route path="management" element={<AdminPage />} />
                 </Route>
               </Routes>
             </CatalogSearchProvider>

@@ -11,7 +11,7 @@ export const dangerButtonClass =
   "cursor-pointer border border-danger bg-transparent px-3 py-1.5 text-xs font-bold tracking-[0.1em] text-danger uppercase hover:bg-danger hover:text-white disabled:cursor-not-allowed disabled:opacity-45 dark:border-[#d17d74] dark:text-[#e8a39c] dark:hover:bg-[#d17d74] dark:hover:text-[#11100e]";
 
 export const inputClass =
-  "w-full border border-line bg-paper px-4 py-3 text-base text-ink outline-none focus:border-brand focus:ring-1 focus:ring-brand/20 dark:border-[#454b44] dark:bg-[#191d19] dark:text-[#f2eee4] dark:placeholder:text-[#8e948c] dark:focus:border-[#82a991] dark:focus:ring-[#82a991]/20";
+  "w-full border border-line bg-paper px-4 py-3 text-base font-normal text-ink outline-none focus:border-brand focus:ring-1 focus:ring-brand/20 dark:border-[#454b44] dark:bg-[#191d19] dark:text-[#f2eee4] dark:placeholder:text-[#8e948c] dark:focus:border-[#82a991] dark:focus:ring-[#82a991]/20";
 
 export const labelClass = "mb-5 grid gap-1 text-[0.68rem] font-bold tracking-[0.16em] text-ink uppercase dark:text-[#d0c8b9]";
 

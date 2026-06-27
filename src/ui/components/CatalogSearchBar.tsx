@@ -88,7 +88,7 @@ export function CatalogSearchBar({
         <label className="sr-only" htmlFor={inputId}>{inputLabel}</label>
         <input
           id={inputId}
-          className={`relative min-w-0 flex-1 border-y border-line bg-paper text-ink outline-none placeholder:text-[#6f695f] focus:z-20 focus:border-brand focus:ring-1 focus:ring-brand/20 dark:border-[#454b44] dark:bg-[#191d19] dark:text-[#f2eee4] dark:placeholder:text-[#8e948c] dark:focus:border-[#82a991] ${compact ? "px-3 py-2 text-sm" : "px-4 py-3 text-base"}`}
+          className={`relative min-w-0 flex-1 border-y border-line bg-paper font-normal text-ink outline-none placeholder:text-[#6f695f] focus:z-20 focus:border-brand focus:ring-1 focus:ring-brand/20 dark:border-[#454b44] dark:bg-[#191d19] dark:text-[#f2eee4] dark:placeholder:text-[#8e948c] dark:focus:border-[#82a991] ${compact ? "px-3 py-2 text-sm" : "px-4 py-3 text-base"}`}
           aria-label={inputLabel}
           type="search"
           value={query}

@@ -1,4 +1,4 @@
-import { Moon, Sun } from "lucide-react";
+import { Mail, Moon, Sun } from "lucide-react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { CatalogSearchBar } from "./CatalogSearchBar";
 import { useAuth } from "../context/AuthContext";
@@ -6,7 +6,8 @@ import { useCatalogSearch } from "../context/CatalogSearchContext";
 import { useCart } from "../context/CartContext";
 import { useTheme } from "../context/ThemeContext";
 
-const FOOTERLESS_PATHS = new Set(["/login", "/signup", "/recovery", "/admin"]);
+const FOOTERLESS_PATHS = new Set(["/login", "/signup", "/recovery", "/management"]);
+const MAILHOG_URL = "https://mailhog.navabe.bertawz.dev";
 
 export function Layout() {
   const { user } = useAuth();
@@ -40,7 +41,18 @@ export function Layout() {
             <NavLink className={navLinkClass} to="/checkout">
               Cart <span className="ml-1">({count})</span>
             </NavLink>
-            <NavLink className={navLinkClass} to="/admin">Management Portal</NavLink>
+            <NavLink className={navLinkClass} to="/about">About</NavLink>
+            <NavLink className={navLinkClass} to="/management">Management Portal</NavLink>
+            <a
+              className="text-ink hover:text-brand dark:text-[#f2eee4] dark:hover:text-[#9cbba7]"
+              href={MAILHOG_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Open MailHog inbox"
+              title="MailHog inbox"
+            >
+              <Mail aria-hidden="true" size={19} strokeWidth={1.6} />
+            </a>
             <button
               className="cursor-pointer text-ink hover:text-brand dark:text-[#f2eee4] dark:hover:text-[#9cbba7]"
               type="button"
@@ -52,11 +64,11 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      <main className="min-h-[calc(100vh-130px)] px-[clamp(1rem,4vw,4rem)] pt-8 pb-24">
+      <main className="min-h-[calc(100vh-130px)] bg-canvas px-[clamp(1rem,4vw,4rem)] pt-8 pb-24 dark:bg-[#000000]">
         <Outlet />
       </main>
       {showFooter && (
-        <footer className="border-t border-line bg-paper px-[clamp(1rem,5vw,5rem)] py-10 text-center text-sm dark:border-[#3f453f] dark:bg-[#151915]">
+        <footer className="border-t border-[#2a251f] bg-[#2f2a24] px-[clamp(1rem,5vw,5rem)] py-10 text-right text-sm text-[#f8f5ee] dark:border-[#2a251f] dark:bg-[#2f2a24]">
           <p>&copy; {new Date().getFullYear()} Navabe Bookstore</p>
         </footer>
       )}

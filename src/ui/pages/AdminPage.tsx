@@ -1,7 +1,8 @@
 import { FormEvent, useEffect, useState } from "react";
-import type { Book, OrderDetails, Statistic } from "../../domain/models";
+import type { Book, Manager, OrderDetails, Statistic } from "../../domain/models";
 import { ApiError, api } from "../../infrastructure/api/client";
 import { Message } from "../components/Message";
+import { useTransientMessage } from "../hooks/useTransientMessage";
 import {
   buttonClass,
   eyebrowClass,
@@ -36,19 +37,42 @@ const blankBook = {
   quantity: 0,
 };
 
+const statisticTitles: Record<string, string> = {
+  average: "Average prices",
+  orders: "Orders",
+  sales: "Sales",
+  stock: "Stock",
+};
+
 export function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
   const [checking, setChecking] = useState(true);
   const [section, setSection] = useState<Section>("dashboard");
 
   useEffect(() => {
     api.admin.session()
-      .then((result) => setAuthenticated(result.authenticated))
+      .then((result) => {
+        setAuthenticated(result.authenticated);
+        setMustChangePassword(result.must_change_password);
+      })
       .finally(() => setChecking(false));
   }, []);
 
   if (checking) return <p className={feedbackStateClass}>Checking management session…</p>;
-  if (!authenticated) return <ManagementAccess onLogin={() => setAuthenticated(true)} />;
+  if (!authenticated) {
+    return (
+      <ManagementAccess
+        onLogin={(manager) => {
+          setAuthenticated(true);
+          setMustChangePassword(manager.must_change_password);
+        }}
+      />
+    );
+  }
+  if (mustChangePassword) {
+    return <ManagerPasswordChange onComplete={() => setMustChangePassword(false)} onLogout={() => setAuthenticated(false)} />;
+  }
 
   return (
     <section className="grid grid-cols-[220px_minmax(0,1fr)] gap-12 max-[850px]:grid-cols-1">
@@ -79,10 +103,10 @@ export function AdminPage() {
   );
 }
 
-function ManagementAccess({ onLogin }: { onLogin(): void }) {
+function ManagementAccess({ onLogin }: { onLogin(manager: Manager): void }) {
   const [mode, setMode] = useState<"login" | "recovery">("login");
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const [error, setError] = useTransientMessage();
+  const [message, setMessage] = useTransientMessage();
 
   function changeMode(nextMode: "login" | "recovery") {
     setMode(nextMode);
@@ -94,8 +118,8 @@ function ManagementAccess({ onLogin }: { onLogin(): void }) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     try {
-      await api.admin.login(String(data.get("identifier")), String(data.get("password")));
-      onLogin();
+      const manager = await api.admin.login(String(data.get("identifier")), String(data.get("password")));
+      onLogin(manager);
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : "Unable to log in.");
     }
@@ -144,9 +168,63 @@ function ManagementAccess({ onLogin }: { onLogin(): void }) {
   );
 }
 
+function ManagerPasswordChange({
+  onComplete,
+  onLogout,
+}: {
+  onComplete(): void;
+  onLogout(): void;
+}) {
+  const [error, setError] = useTransientMessage();
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const password = String(data.get("password"));
+    const confirmation = String(data.get("confirmation"));
+    if (password !== confirmation) {
+      setError("Passwords do not match.");
+      return;
+    }
+    try {
+      await api.admin.changePassword(password);
+      form.reset();
+      onComplete();
+    } catch (reason) {
+      setError(reason instanceof ApiError ? reason.message : "Unable to change the password.");
+    }
+  }
+
+  async function logout() {
+    await api.admin.logout();
+    onLogout();
+  }
+
+  return (
+    <section className="mx-auto my-12 max-w-[650px]">
+      <article className={panelClass}>
+        <h1 className={pageTitleClass}>Change temporary password</h1>
+        <p className="mb-6 leading-7 text-ink/80 dark:text-[#d9d1c3]">
+          Choose a new password before accessing the management portal.
+        </p>
+        <form onSubmit={submit}>
+          <label className={labelClass}>New password<input className={inputClass} name="password" type="password" minLength={6} required /></label>
+          <label className={labelClass}>Confirm password<input className={inputClass} name="confirmation" type="password" minLength={6} required /></label>
+          <div className="flex flex-wrap gap-3">
+            <button className={buttonClass}>Update password</button>
+            <button className={secondaryButtonClass} type="button" onClick={() => void logout()}>Logout</button>
+          </div>
+        </form>
+        <Message>{error}</Message>
+      </article>
+    </section>
+  );
+}
+
 function AdminDashboard() {
   const [stats, setStats] = useState<Record<string, Statistic>>({});
-  const [error, setError] = useState("");
+  const [error, setError] = useTransientMessage();
   useEffect(() => {
     Promise.all([
       api.admin.statistic("stock", "category"),
@@ -155,7 +233,7 @@ function AdminDashboard() {
       api.admin.statistic("average-price", "category"),
     ]).then(([stock, sales, orders, average]) => setStats({ stock, sales, orders, average }))
       .catch((reason) => setError(reason instanceof ApiError ? reason.message : "Unable to load statistics."));
-  }, []);
+  }, [setError]);
   return (
     <>
       <h1 className={pageTitleClass}>Bookstore statistics</h1><Message>{error}</Message>
@@ -168,8 +246,9 @@ function AdminDashboard() {
 
 function StatisticCard({ title, statistic }: { title: string; statistic: Statistic }) {
   const maximum = Math.max(...statistic.values, 1);
+  const displayTitle = statisticTitles[title] ?? title;
   return (
-    <article className={panelClass}><h2 className={`${sectionTitleClass} capitalize`}>{title}</h2>
+    <article className={panelClass}><h2 className={sectionTitleClass}>{displayTitle}</h2>
       {statistic.labels.map((label, index) => (
         <div className="my-2 grid grid-cols-[100px_1fr_50px] items-center gap-2 text-xs" key={label}>
           <span className="truncate">{label}</span>
@@ -187,7 +266,7 @@ function StatisticCard({ title, statistic }: { title: string; statistic: Statist
 function AdminBooks() {
   const [books, setBooks] = useState<Book[]>([]);
   const [book, setBook] = useState<Partial<Book> & { quantity: number }>(blankBook);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useTransientMessage();
 
   async function search(query: string) {
     setBooks(await api.admin.books(query));
@@ -246,7 +325,7 @@ function AdminBooks() {
 
 function AdminOrders() {
   const [order, setOrder] = useState<OrderDetails | null>(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useTransientMessage();
   async function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
@@ -275,14 +354,19 @@ function AdminOrders() {
 }
 
 function ManagerCreate() {
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useTransientMessage();
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const data = Object.fromEntries(new FormData(event.currentTarget).entries()) as { name: string; first_name: string; email: string };
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form).entries()) as { name: string; first_name: string; email: string };
     try {
       const manager = await api.admin.createManager(data);
-      setMessage(`Manager ${manager.identifier} was created and received a temporary password.`);
-      event.currentTarget.reset();
+      setMessage(
+        manager?.identifier
+          ? `Manager ${manager.identifier} was created and received a temporary password.`
+          : "Manager was created and received a temporary password.",
+      );
+      form.reset();
     } catch (reason) {
       setMessage(reason instanceof ApiError ? reason.message : "Unable to create the manager.");
     }

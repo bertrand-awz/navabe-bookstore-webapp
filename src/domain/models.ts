@@ -48,6 +48,7 @@ export interface Manager {
   name: string;
   first_name: string;
   email: string;
+  must_change_password: boolean;
 }
 
 export interface OrderDetails {

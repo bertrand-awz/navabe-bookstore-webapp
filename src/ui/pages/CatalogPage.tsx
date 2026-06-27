@@ -7,6 +7,7 @@ import { CatalogSearchBar } from "../components/CatalogSearchBar";
 import { Message } from "../components/Message";
 import { useCatalogSearch } from "../context/CatalogSearchContext";
 import { useCart } from "../context/CartContext";
+import { useTransientMessage } from "../hooks/useTransientMessage";
 import { eyebrowClass, feedbackStateClass } from "../styles";
 
 export function CatalogPage() {
@@ -14,8 +15,8 @@ export function CatalogPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selected, setSelected] = useState<Book | null>(null);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
+  const [error, setError] = useTransientMessage();
+  const [notice, setNotice] = useTransientMessage();
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasNext, setHasNext] = useState(true);
@@ -71,7 +72,7 @@ export function CatalogPage() {
         setLoading(false);
       }
     }
-  }, [debouncedQuery, direction, sort]);
+  }, [debouncedQuery, direction, setError, sort]);
 
   useEffect(() => {
     generationRef.current += 1;
@@ -81,7 +82,7 @@ export function CatalogPage() {
     setHasNext(true);
     setNotice("");
     void loadPage(1, true, generationRef.current);
-  }, [loadPage]);
+  }, [loadPage, setNotice]);
 
   useEffect(() => {
     if (!sentinel.current || !hasNext || loading || typeof IntersectionObserver === "undefined") return;
