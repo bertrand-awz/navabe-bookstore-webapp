@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { api } from "../../infrastructure/api/client";
 import { CatalogSearchProvider, useCatalogSearch } from "../context/CatalogSearchContext";
 import { CartProvider } from "../context/CartContext";
@@ -54,10 +55,12 @@ function NavigationSearchProbe() {
 
 function renderCatalog() {
   return render(
-    <CatalogSearchProvider>
-      <NavigationSearchProbe />
-      <CartProvider><CatalogPage /></CartProvider>
-    </CatalogSearchProvider>,
+    <MemoryRouter>
+      <CatalogSearchProvider>
+        <NavigationSearchProbe />
+        <CartProvider><CatalogPage /></CartProvider>
+      </CatalogSearchProvider>
+    </MemoryRouter>,
   );
 }
 
@@ -97,6 +100,8 @@ describe("CatalogPage infinite loading", () => {
   it("loads the first page automatically and the next page near the end", async () => {
     renderCatalog();
 
+    expect(screen.getByText("Project notice.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "About page" })).toHaveAttribute("href", "/about");
     expect(await screen.findByText("First page book")).toBeInTheDocument();
 
     act(() => intersect(screen.getByLabelText("Catalog loading status"), true));

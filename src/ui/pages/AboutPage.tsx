@@ -66,14 +66,15 @@ export function AboutPage() {
           </section>
 
           <section className="grid gap-4">
-            <h2 className={readmeHeadingClass}>Management portal access</h2>
+            <h2 className={readmeHeadingClass}>Root administrator access</h2>
             <p className={readmeParagraphClass}>
-              The management portal is available from the navigation bar. Use the
-              demonstration manager account below to review statistics, orders,
-              catalog editing and manager creation. Use these credentials to access to the management portal.
+              The management portal is available from the navigation bar. The database
+              migration creates the root administrator below on each scripted start.
+              To access it, use Forgot password? with the root email, then open
+              MailHog to copy the temporary password and replace it after signing in.
             </p>
-            <pre className={readmeCodeBlockClass} aria-label="Management portal credentials">
-              <code><strong className="font-bold lowercase">manager id</strong>: DMGM01{"\n"}<strong className="font-bold lowercase">password</strong>: &Default_89_Manager</code>
+            <pre className={readmeCodeBlockClass} aria-label="Root administrator credentials">
+              <code><strong className="font-bold lowercase">manager id</strong>: RTMGM1{"\n"}<strong className="font-bold lowercase">email</strong>: root.manager@test.navabe.bertawz.dev</code>
             </pre>
             <p className={readmeParagraphClass}>
               <Link className={readmeLinkClass} to="/management">

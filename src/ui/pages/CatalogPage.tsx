@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import { Link } from "react-router-dom";
 import type { Book, CatalogSortField, SortDirection } from "../../domain/models";
 import { api, ApiError } from "../../infrastructure/api/client";
 import { BookCard } from "../components/BookCard";
@@ -112,10 +114,21 @@ export function CatalogPage() {
         className="mb-16 grid min-h-[min(68vh,720px)] grid-cols-[1.2fr_0.8fr] bg-brand text-white dark:bg-[#243e30] max-[850px]:grid-cols-1"
         aria-label="Catalog introduction"
       >
-        <div className="flex flex-col justify-between p-[clamp(2rem,6vw,6rem)]">
+        <div className="flex flex-col justify-between gap-10 p-[clamp(2rem,6vw,6rem)]">
           <h1 className="max-w-[850px] font-display text-[clamp(4rem,9vw,8rem)] leading-[0.82] font-semibold tracking-[-0.04em]">
             Find your next story.
           </h1>
+          <div className="flex max-w-xl items-start gap-3 border border-white/30 bg-white/10 p-4 text-sm leading-6 text-white">
+            <ExclamationCircleIcon className="mt-0.5 h-6 w-6 flex-none" aria-hidden="true" />
+            <p>
+              <span className="font-bold">Project notice.</span>{" "}
+              Visit the{" "}
+              <Link className="font-bold underline decoration-white/50 underline-offset-4 hover:decoration-white" to="/about">
+                About page
+              </Link>{" "}
+              for more information about this project.
+            </p>
+          </div>
         </div>
         <div className="flex flex-col justify-end bg-paper p-[clamp(2rem,5vw,5rem)] text-ink dark:bg-[#181c18] dark:text-[#f2eee4]">
           <p className={eyebrowClass}>Browse the collection</p>
