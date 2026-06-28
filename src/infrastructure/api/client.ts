@@ -9,7 +9,54 @@ import type {
   User,
 } from "../../domain/models";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api/v1";
+const DEVELOPMENT_API_URL = "http://localhost:5000/api/v1";
+
+type ApiEnvironment = {
+  PROD?: boolean;
+  VITE_API_URL?: string;
+};
+
+export function resolveApiUrl(env: ApiEnvironment = import.meta.env): string {
+  return env.PROD
+    ? resolveProductionApiUrl(env.VITE_API_URL)
+    : resolveDevelopmentApiUrl(env.VITE_API_URL);
+}
+
+function resolveDevelopmentApiUrl(configuredUrl?: string): string {
+  return configuredUrl?.trim().replace(/\/+$/, "") || DEVELOPMENT_API_URL;
+}
+
+function resolveProductionApiUrl(value?: string): string {
+  const configuredUrl = value?.trim();
+
+  if (!configuredUrl) {
+    throw new Error("VITE_API_URL must be configured for production builds.");
+  }
+
+  const apiUrl = configuredUrl.replace(/\/+$/, "");
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(apiUrl);
+  } catch {
+    throw new Error("VITE_API_URL must be an absolute HTTPS URL in production.");
+  }
+
+  if (parsedUrl.protocol !== "https:") {
+    throw new Error("VITE_API_URL must use HTTPS in production.");
+  }
+  if (["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(parsedUrl.hostname)) {
+    throw new Error("VITE_API_URL must not point to a local host in production.");
+  }
+  if (!parsedUrl.pathname.replace(/\/+$/, "").endsWith("/api/v1")) {
+    throw new Error("VITE_API_URL must point to the /api/v1 API base path.");
+  }
+
+  return apiUrl;
+}
+
+const API_URL = import.meta.env.PROD
+  ? resolveProductionApiUrl(import.meta.env.VITE_API_URL)
+  : resolveDevelopmentApiUrl(import.meta.env.VITE_API_URL);
 
 export class ApiError extends Error {
   constructor(

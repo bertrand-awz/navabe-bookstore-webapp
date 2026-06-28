@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { AboutPage } from "./AboutPage";
 
@@ -20,17 +20,21 @@ describe("AboutPage", () => {
     expect(screen.getByText(/test@test.ca/i)).toBeInTheDocument();
     expect(screen.getByText("test@test.ca").tagName.toLowerCase()).not.toBe("code");
     expect(screen.getByText("reader@example.com").tagName.toLowerCase()).not.toBe("code");
-    expect(screen.getByRole("link", { name: /Mailhog/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /MailHog/i })).toHaveAttribute(
       "href",
       "https://mailhog.navabe.bertawz.dev",
     );
+    const mailhogCredentials = screen.getByLabelText("MailHog credentials");
+    expect(mailhogCredentials).toHaveTextContent("url: https://mailhog.navabe.bertawz.dev");
+    expect(mailhogCredentials).toHaveTextContent("username: navabe-demo");
+    expect(mailhogCredentials).toHaveTextContent("password: 8SFwlh2m6NE3TA74y6Q9K2ABlSOIBaeC");
     expect(screen.getByRole("link", { name: "Open Management Portal" })).toHaveAttribute("href", "/management");
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
     const credentials = screen.getByLabelText("Management portal credentials");
     expect(credentials.tagName.toLowerCase()).toBe("pre");
     expect(credentials).toHaveClass("font-mono", "bg-paper");
-    expect(screen.getByText("manager id")).toHaveClass("font-bold", "lowercase");
-    expect(screen.getByText("password")).toHaveClass("font-bold", "lowercase");
+    expect(within(credentials).getByText("manager id")).toHaveClass("font-bold", "lowercase");
+    expect(within(credentials).getByText("password")).toHaveClass("font-bold", "lowercase");
     expect(credentials).toHaveTextContent("manager id: DMGM01");
     expect(credentials).toHaveTextContent("password: &Default_89_Manager");
     expect(screen.getByText(/PayPal runs in sandbox mode/i)).toBeInTheDocument();

@@ -20,12 +20,15 @@ FROM dependencies AS build
 
 COPY . .
 
-ARG VITE_API_URL=/api/v1
+ARG VITE_API_URL
 ARG VITE_PAYPAL_CLIENT_ID=
 ENV VITE_API_URL=${VITE_API_URL} \
     VITE_PAYPAL_CLIENT_ID=${VITE_PAYPAL_CLIENT_ID}
 
-RUN npm run build
+RUN test -n "${VITE_API_URL}" \
+    && case "${VITE_API_URL}" in https://*/api/v1|https://*/api/v1/) true ;; *) echo "VITE_API_URL must be an HTTPS /api/v1 URL for production builds." >&2; exit 1 ;; esac \
+    && case "${VITE_API_URL}" in *localhost*|*127.0.0.1*|*0.0.0.0*) echo "VITE_API_URL must not point to a local host in production builds." >&2; exit 1 ;; *) true ;; esac \
+    && npm run build
 
 FROM nginx:1.27-alpine AS runtime
 

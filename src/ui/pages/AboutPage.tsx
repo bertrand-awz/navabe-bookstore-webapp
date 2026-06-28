@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 
 const mailhogUrl = "https://mailhog.navabe.bertawz.dev";
+const mailhogUsername = "navabe-demo";
+const mailhogPassword = "8SFwlh2m6NE3TA74y6Q9K2ABlSOIBaeC";
 
 const readmeHeadingClass =
   "border-b border-line pb-3 font-display text-3xl leading-tight font-semibold text-ink dark:border-[#514c44] dark:text-[#f2eee4]";
@@ -48,10 +50,19 @@ export function AboutPage() {
               delivered to a real mailbox. After signing up, changing a password or
               requesting account recovery, open{" "}
               <a className={readmeLinkClass} href={mailhogUrl} target="_blank" rel="noreferrer">
-Mailhog
+                MailHog
               </a>{" "}
               to inspect the messages sent to the test user.
             </p>
+            <pre className={readmeCodeBlockClass} aria-label="MailHog credentials">
+              <code>
+                <strong className="font-bold lowercase">url</strong>: {mailhogUrl}
+                {"\n"}
+                <strong className="font-bold lowercase">username</strong>: {mailhogUsername}
+                {"\n"}
+                <strong className="font-bold lowercase">password</strong>: {mailhogPassword}
+              </code>
+            </pre>
           </section>
 
           <section className="grid gap-4">

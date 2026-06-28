@@ -1,6 +1,25 @@
-import { ApiError, api } from "./client";
+import { ApiError, api, resolveApiUrl } from "./client";
 
 describe("API client", () => {
+  it("uses the configured API URL in production", () => {
+    expect(resolveApiUrl({ PROD: true, VITE_API_URL: "https://api.navabe.bertawz.dev/api/v1/" })).toBe(
+      "https://api.navabe.bertawz.dev/api/v1",
+    );
+  });
+
+  it("rejects local API URLs in production", () => {
+    expect(() => resolveApiUrl({ PROD: true, VITE_API_URL: "http://localhost:5173/recovery" })).toThrow(
+      "VITE_API_URL must use HTTPS in production.",
+    );
+    expect(() => resolveApiUrl({ PROD: true, VITE_API_URL: "https://localhost:5173/api/v1" })).toThrow(
+      "VITE_API_URL must not point to a local host in production.",
+    );
+  });
+
+  it("keeps the local fallback for development only", () => {
+    expect(resolveApiUrl({ PROD: false })).toBe("http://localhost:5000/api/v1");
+  });
+
   it("sends credentials and maps API errors", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: false,
