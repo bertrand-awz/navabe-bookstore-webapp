@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { Layout } from "./Layout";
 
@@ -47,6 +47,31 @@ describe("Layout", () => {
       "href",
       "https://mailhog.navabe.bertawz.dev",
     );
+  });
+
+  it("collapses navigation links behind a mobile menu button", () => {
+    renderLayout("/");
+
+    const menuButton = screen.getByRole("button", { name: "Open main menu" });
+    expect(menuButton).toHaveAttribute("aria-controls", "mobile-navigation");
+    expect(menuButton).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("navigation", { name: "Mobile navigation" })).not.toBeInTheDocument();
+
+    fireEvent.click(menuButton);
+
+    expect(menuButton).toHaveAttribute("aria-expanded", "true");
+    const mobileNavigation = screen.getByRole("navigation", { name: "Mobile navigation" });
+    expect(within(mobileNavigation).getByRole("link", { name: "Catalog" })).toHaveAttribute("href", "/");
+    expect(within(mobileNavigation).getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
+    expect(within(mobileNavigation).getByRole("link", { name: "Management Portal" })).toHaveAttribute("href", "/management");
+    expect(within(mobileNavigation).getByRole("link", { name: "MailHog" })).toHaveAttribute(
+      "href",
+      "https://mailhog.navabe.bertawz.dev",
+    );
+
+    fireEvent.click(within(mobileNavigation).getByRole("link", { name: "About" }));
+
+    expect(screen.queryByRole("navigation", { name: "Mobile navigation" })).not.toBeInTheDocument();
   });
 
   it("shows only the right-aligned bookstore copyright on regular pages", () => {
